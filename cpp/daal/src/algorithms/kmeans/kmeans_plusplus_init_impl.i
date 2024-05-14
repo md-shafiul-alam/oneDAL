@@ -292,15 +292,21 @@ public:
                                             const algorithmFPType * const pLastAddedCenter, const algorithmFPType * const aWeights,
                                             const algorithmFPType * const pDistSqBest)
     {
-        algorithmFPType sumOfDist2 = algorithmFPType(0);
-        size_t csrCursor           = 0u;
+        algorithmFPType sumOfDist2  = algorithmFPType(0);
+        size_t csrCursor            = 0u;
+        size_t lastAddedCenterSumSq = 0u;
+        for (size_t iCol = 0u; iCol < dim; iCol++){
+            lastAddedCenterSumSq += pLastAddedCenter[iCol] * pLastAddedCenter[iCol];
+        }
+
         for (size_t iRow = 0u; iRow < nRowsToProcess; iRow++)
         {
-            algorithmFPType dist2 = algorithmFPType(0);
+            algorithmFPType dist2 = lastAddedCenterSumSq;
             const size_t nValues  = rowIdx[iRow + 1] - rowIdx[iRow];
             for (size_t i = 0u; i < nValues; i++, csrCursor++)
             {
-                dist2 += (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]) * (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]);
+                dist2 += pData[csrCursor] * pData[csrCursor];
+                dist2 -= 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
             }
             if (aWeights)
             {
